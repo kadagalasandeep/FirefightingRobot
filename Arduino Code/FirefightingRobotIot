@@ -1,0 +1,61 @@
+#include <Servo.h>
+
+Servo myServo;
+
+// Flame sensors
+int leftSensor = 2;
+int centerSensor = 3;
+int rightSensor = 4;
+
+// Relay (water pump)
+int pump = 8;
+
+void setup() {
+  pinMode(leftSensor, INPUT);
+  pinMode(centerSensor, INPUT);
+  pinMode(rightSensor, INPUT);
+  pinMode(pump, OUTPUT);
+
+  myServo.attach(9);
+  myServo.write(90); // center position
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  int left = digitalRead(leftSensor);
+  int center = digitalRead(centerSensor);
+  int right = digitalRead(rightSensor);
+
+  Serial.print("L: "); Serial.print(left);
+  Serial.print(" C: "); Serial.print(center);
+  Serial.print(" R: "); Serial.println(right);
+
+  if (left == LOW) {  
+    Serial.println("Fire on LEFT");
+    myServo.write(150); // turn left
+    activatePump();
+  }
+  else if (right == LOW) {  
+    Serial.println("Fire on RIGHT");
+    myServo.write(30); // turn right
+    activatePump();
+  }
+  else if (center == LOW) {  
+    Serial.println("Fire at CENTER");
+    myServo.write(90); // center
+    activatePump();
+  }
+  else {
+    Serial.println("No Fire");
+    digitalWrite(pump, LOW);
+  }
+
+  delay(500);
+}
+
+void activatePump() {
+  digitalWrite(pump, HIGH);
+  delay(2000); // spray water
+  digitalWrite(pump, LOW);
+}
